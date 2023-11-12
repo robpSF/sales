@@ -41,6 +41,9 @@ def main():
         monthly_revenue = combined_df.groupby('Month-Year')['Price'].sum().reset_index()
         monthly_revenue['Cumulative Revenue'] = monthly_revenue['Price'].cumsum()
 
+        #-----------------------------------------------------------------
+        # Process Forecast
+        # Process Forecast data for revenue
         # Process Forecast
         forecast_df['Close Date'] = pd.to_datetime(forecast_df['Close Date'])
         forecast_df['Month-Year'] = forecast_df['Close Date'].dt.strftime('%Y-%m')
@@ -48,6 +51,17 @@ def main():
         forecast_df['Estimated Value'] = pd.to_numeric(forecast_df['Estimated Value'], errors='coerce')
         forecast_df['Forecast Fee'] = forecast_df['Estimated Value'] * forecast_df['Probability']
         forecast_fee_by_month = forecast_df.groupby('Month-Year')['Forecast Fee'].sum().reset_index()
+
+        # Plotting the forecast revenue chart
+        fig, ax = plt.subplots()
+        ax.bar(forecast_fee_by_month['Month-Year'], forecast_fee_by_month['Forecast Fee'], color='purple')
+        ax.set_xlabel('Month-Year')
+        ax.set_ylabel('Forecast Revenue')
+        ax.set_title('Monthly Forecast Revenue')
+        plt.xticks(rotation=90)
+        st.pyplot(fig)
+        st.write(forecast_df)
+        #----------------------------------------------------------
 
         # Combine Renewals and Forecast data
         combined_monthly_data = pd.merge(monthly_revenue, forecast_fee_by_month, on='Month-Year', how='outer').fillna(0)
